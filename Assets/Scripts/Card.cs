@@ -52,9 +52,10 @@ public class Card : CardInfo
 
     private IEnumerator FlipAnim()
     {
-		mainScript.Audio.PlaySoundAtTransform("Flip", transform);
-		animating = true;
 		faceUp = !faceUp;
+		yield return new WaitUntil(() => !animating);
+		animating = true;
+		mainScript.Audio.PlaySoundAtTransform("Flip", transform);
 		const float duration = 0.75f;
 		float delta = 0;
 		Vector3 startRot = new Vector3(faceUp ? -90 : 90,  90, 90);

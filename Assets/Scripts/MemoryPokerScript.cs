@@ -23,7 +23,7 @@ public class MemoryPokerScript : MonoBehaviour {
     private PuzzleGenerator generator = new PuzzleGenerator();
     private PokerHandCalculator handCalc = new PokerHandCalculator();
     private CardInfo[] startingGrid = new CardInfo[16];
-private int[] initiallyFaceUp = Enumerable.Range(0, 16).ToArray();
+    private int[] initiallyFaceUp;
     private int[] tableCards;
     private int[] originalPositions;
     private int stage = 0;
@@ -193,11 +193,12 @@ private int[] initiallyFaceUp = Enumerable.Range(0, 16).ToArray();
 
     IEnumerator GenerateStage()
     {
+        yield return new WaitUntil(() => cards.All(x => !x.animating));
         GetTablePlacements();
         GetActualCards();
         handCalc.GetBestHand(tableCards);
         Log(string.Format("The best possible poker hand is a {0}, which is obtainable with cards {1}.", handCalc.bestHand.ToString().Replace('_', ' '), handCalc.bestHandSet.Join()));
-        yield return FlipMultiple(tableCards.Select(x => cards[x]));
+        yield return FlipMultiple(tableCards.Select(x => cards[x]).Where(x => !x.faceUp));
     }
     void GetTablePlacements()
     {
@@ -276,14 +277,15 @@ private int[] initiallyFaceUp = Enumerable.Range(0, 16).ToArray();
         if (startingPhase)
             cards.PickRandom().selectable.OnInteract();
         yield return new WaitForSeconds(0.125f);
-        while (!moduleSolved)
+        while (true)
         {
             while (uninteractable)
                 yield return true;
+            if (moduleSolved)
+                break;
             foreach (CardInfo card in handCalc.bestHandSet.Skip(3))
             {
                 int pos = Enumerable.Range(0, 16).First(x => startingGrid[x].suit == card.suit && startingGrid[x].rank == card.rank);
-                Debug.Log(pos);
                 cards[pos].selectable.OnInteract();
                 yield return new WaitForSeconds(0.125f);
             }
