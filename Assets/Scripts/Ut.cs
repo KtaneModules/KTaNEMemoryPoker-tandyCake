@@ -8,6 +8,7 @@ using Rnd = UnityEngine.Random;
 static class Ut
 {
 
+
     /// <summary>
     ///     Given a set of values and a function that returns true when given this set, will efficiently remove items from
     ///     this set which are not essential for making the function return true. The relative order of items is
@@ -58,6 +59,19 @@ static class Ut
 
         state.ResetTemporarySplit();
         return state.SetToTest;
+    }
+    /// <summary>
+    /// Returns the number of times a given <typeparamref name="T"/> <paramref name="item"/> appears in <paramref name="collection"/>.
+    /// </summary>
+    /// <param name="collection"> The collection from which count is taken from.</param>
+    /// <param name="item">The item that is counted.</param>
+    public static int CountOf<T>(this IEnumerable<T> collection, T item)
+    {
+        if (collection == null)
+            throw new ArgumentNullException("collection");
+        if (item == null)
+            throw new ArgumentNullException("item");
+        return collection.Count(x => x.Equals(item));
     }
 
     /// <summary>

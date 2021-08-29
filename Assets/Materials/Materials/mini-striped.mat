@@ -6,10 +6,10 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: Component_PuzzleBackground
+  m_Name: mini-striped
   m_Shader: {fileID: 4800000, guid: 3f0d4a2e325f9c24f8251b7b8534a096, type: 3}
   m_ShaderKeywords: 
-  m_LightmapFlags: 5
+  m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -19,9 +19,9 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: c38ca5f365b414c4581b1431b21270c6, type: 3}
+        m_Texture: {fileID: 2800000, guid: 5cd0625a72062e6429b6670fd71149ad, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats: []
     m_Colors:
-    - _Color: {r: 0.24567471, g: 0.4705882, b: 0.34960023, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}

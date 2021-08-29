@@ -5778,6 +5778,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 35f30a3884f179144a3561c9d90a235c, type: 3}
   - {fileID: 21300000, guid: 0767872da82c7df4e8f10a4626ba29d4, type: 3}
   - {fileID: 21300000, guid: 84f2f5c0909668d43aecc0353a18c7d4, type: 3}
+  allPuzzles: {fileID: 4900000, guid: 7d096106ad996644792c21a681b174d7, type: 3}
 --- !u!114 &114122074586738568
 MonoBehaviour:
   m_ObjectHideFlags: 1

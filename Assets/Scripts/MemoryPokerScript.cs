@@ -14,6 +14,9 @@ public class MemoryPokerScript : MonoBehaviour {
     public KMBombModule Module;
     public Card[] cards;
     public Sprite[] sprites;
+    public TextAsset allPuzzles;
+   
+
     static int moduleIdCounter = 1;
     int moduleId;
     private bool moduleSolved;
@@ -45,26 +48,30 @@ public class MemoryPokerScript : MonoBehaviour {
         }
 
         Module.OnActivate += delegate () { StartCoroutine(Activate()); } ;
-
-        //Button.OnInteract += delegate () { ButtonPress(); return false; };
-
+        generator.allPuzzlesText = allPuzzles.text;
     }
     void Start ()
     {
-        generator.CreateGrid();
+        generator.GetAllPuzzles();
+        generator.GetGrid();
+        generator.GenerateGivens();
+
+        startingGrid = generator.chosenPuzzle;
+        initiallyFaceUp = generator.givens.OrderBy(x => x).ToArray();
+
+        
         for (int i = 0; i < 16; i++)
-        {
-            startingGrid[i] = new CardInfo() { suit = generator.suitGrid[i], rank = generator.rankGrid[i] };
             cards[i].Info = startingGrid[i];
-        }
+
+
         handCalc.grid = (CardInfo[])startingGrid.Clone();
         DetermineGrids();
 
+        Log("The face-up cards are:");
+        LogGrid(Enumerable.Range(0, 16).Select(x => initiallyFaceUp.Contains(x) ? startingGrid[x].ToString() : "..").ToArray());
+
         Log("The starting grid is:");
-        Log(startingGrid.Take(4).Join());
-        Log(startingGrid.Skip(4).Take(4).Join());
-        Log(startingGrid.Skip(8).Take(4).Join());
-        Log(startingGrid.Skip(12).Take(4).Join());
+        LogGrid(startingGrid);
 
     }
 
@@ -101,7 +108,7 @@ public class MemoryPokerScript : MonoBehaviour {
             if (Bomb.GetOnIndicators().Contains(firstInds[1]))
                 suitTable = TransformationHandler.ApplyTransformation(Tables.suitTable, Rotation.none, Reflection.X);
             else suitTable = TransformationHandler.ApplyTransformation(Tables.suitTable, Rotation.hundredEightyCW);
-            currentToSuit = Bomb.GetIndicators().Join("").Distinct().Count() != 3 * Bomb.GetIndicators().Count();
+            currentToSuit = Bomb.GetIndicators().Any(ind => Bomb.GetIndicators().Where(x => x != ind).Any(other => ind.Any(letter => other.Contains(letter))));
         }
         else
         {
@@ -112,8 +119,10 @@ public class MemoryPokerScript : MonoBehaviour {
             suitTable = TransformationHandler.ApplyTransformation(Tables.suitTable, (Rotation)ccwCount);
             currentToSuit = snSum / 10 % 2 == snSum % 2;
         }
-        Log("The rank table used is: " + rankTable.Select(x => x.ToString()[0]).Join());
-        Log("The suit table used is: " + suitTable.Select(x => "♠♥♣♦"[(int)x]).Join());
+        Log("The rank table used is:");
+        LogGrid(rankTable.Select(x => x.ToString()[0].ToString()).ToArray());
+        Log("The suit table used is:");
+        LogGrid(suitTable.Select(x => "♠♥♣♦"[(int)x].ToString()).ToArray());
         Log(string.Format("The {0} table is used for the current positions, and the {1} table is used for the initial positions", 
             currentToSuit ? "suit" : "rank", currentToSuit ? "rank" : "suit"));
     }
@@ -144,6 +153,11 @@ public class MemoryPokerScript : MonoBehaviour {
         yield return FlipMultiple(initiallyFaceUp.Select(x => cards[x]));
         uninteractable = false;
     }
+    void LogGrid(object[] grid)
+    {
+        for (int i = 0; i < 4; i++)
+            Log(Enumerable.Range(i * 4, 4).Select(x => grid[x]).Join());
+    }
 
     IEnumerator InitializeStage()
     {
@@ -171,14 +185,19 @@ public class MemoryPokerScript : MonoBehaviour {
             {
                 yield return FlipMultiple(cards.Where(x => x.faceUp));
                 moduleSolved = true;
+                for (int i = 0; i < 16; i++)
+                {
+                    cards[i].Info = startingGrid[i];
+                    cards[i].UpdateAppearance();
+                }
                 Module.HandlePass();
                 uninteractable = false;
             }
             else
             {
+            for (int i = 0; i < 16; i++)
+                cards[i].Info = startingGrid[i];
                 handCalc.hand.Clear();
-                for (int i = 0; i < 16; i++)
-                    cards[i].Info = startingGrid[i];
                 Log("That was correct. Progressing to stage " + (stage + 1));
                 yield return InitializeStage();
             }
@@ -217,11 +236,10 @@ public class MemoryPokerScript : MonoBehaviour {
         handCalc.hand.Clear();
         for (int i = 0; i < 3; i++)
         {
-            actualCards[i] = new CardInfo()
-            {
-                suit = suitTable[currentToSuit ? tableCards[i] : originalPositions[i]],
-                rank = rankTable[!currentToSuit ? tableCards[i] : originalPositions[i]],
-            };
+            actualCards[i] = new CardInfo(
+                suitTable[currentToSuit ? tableCards[i] : originalPositions[i]],
+                rankTable[!currentToSuit ? tableCards[i] : originalPositions[i]]
+                );
             handCalc.Add(actualCards[i]);
             Log(string.Format("The card at {0} maps to {1}.", coordinates[tableCards[i]], actualCards[i]));
         }
@@ -259,15 +277,28 @@ public class MemoryPokerScript : MonoBehaviour {
     }
 
     #pragma warning disable 414
-    private readonly string TwitchHelpMessage = @"Use <!{0} foobar> to do something.";
+    private readonly string TwitchHelpMessage = @"Use <!{0} start> to begin the module. Use <!{0} flip A4 B3 C2 D1> to flip those cards. Letters represent columns and numbers represents rows, starting from A1 in the top-left.";
     #pragma warning restore 414
 
     IEnumerator ProcessTwitchCommand (string command)
     {
-        StartCoroutine(Strike());
         command = command.Trim().ToUpperInvariant();
-        List<string> parameters = command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-        yield return null;
+        Match m = Regex.Match(command, @"^(?:FLIP\s+)?((?:[A-D][1-4]\s*)+)$");
+        if (command == "START" && startingPhase)
+        {
+            yield return null;
+            cards.PickRandom().selectable.OnInteract();
+        }
+        else if (m.Success)
+        {
+            yield return null;
+            foreach (string item in m.Groups[1].Value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
+                if (coordinates.Contains(item))
+                {
+                    cards[Array.IndexOf(coordinates, item)].selectable.OnInteract();
+                    yield return new WaitForSeconds(0.125f);
+                }
+        }
     }
 
     IEnumerator TwitchHandleForcedSolve ()

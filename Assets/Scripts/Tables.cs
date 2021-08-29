@@ -12,6 +12,6 @@
         Rank.Queen, Rank.Ten, Rank.Jack, Rank.Jack,
         Rank.King, Rank.Ace, Rank.Ten, Rank.King,
         Rank.Queen, Rank.Ace, Rank.Queen, Rank.Ten,
-        Rank.Ten, Rank.Jack, Rank.Queen, Rank.Ace
-    };
+        Rank.Ten, Rank.Jack, Rank.King, Rank.Ace
+    };  
 }
