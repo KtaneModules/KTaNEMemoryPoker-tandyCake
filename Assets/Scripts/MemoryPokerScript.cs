@@ -51,8 +51,7 @@ public class MemoryPokerScript : MonoBehaviour {
         generator.allPuzzlesText = allPuzzles.text;
     }
     void Start ()
-    {
-        generator.GetAllPuzzles();
+    {   
         generator.GetGrid();
         generator.GenerateGivens();
 
@@ -191,6 +190,8 @@ public class MemoryPokerScript : MonoBehaviour {
                     cards[i].UpdateAppearance();
                 }
                 Module.HandlePass();
+                Log("Module solved!");
+                Audio.PlaySoundAtTransform("MPokSolveSound", transform);
                 uninteractable = false;
             }
             else
@@ -266,7 +267,7 @@ public class MemoryPokerScript : MonoBehaviour {
             cards[i].UpdateAppearance();
         }
         yield return new WaitForSeconds(0.5f);
-        yield return FlipMultiple(cards);
+        yield return FlipMultiple(initiallyFaceUp.Select(x => cards[x]));
         startingPhase = true;
         uninteractable = false;
     }

@@ -37,5 +37,6 @@ public enum PokerHand
     Flush,
     Full_House,
     Four_Of_A_Kind, 
+    Five_Of_A_Kind,
     Royal_Flush 
 }

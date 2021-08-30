@@ -31,6 +31,8 @@ public class PokerHandCalculator  {
         if (differentRanks.Length == 5 && differentSuits.Length == 1) //One of each rank and all of the same suit
             return PokerHand.Royal_Flush;
         //Straight flush is excluded because it is indistinguishable from a royal flush with TJQKA.
+        else if (rankCounts.Any(x => x == 5)) //Any rank appears 5 times
+            return PokerHand.Five_Of_A_Kind;
         else if (rankCounts.Any(x => x == 4)) //Any rank appears 4 times
             return PokerHand.Four_Of_A_Kind;
         else if (rankCounts.Any(x => x == 3) && rankCounts.Any(x => x == 2)) //A rank appears 3 times and a different rank appears 2 times
