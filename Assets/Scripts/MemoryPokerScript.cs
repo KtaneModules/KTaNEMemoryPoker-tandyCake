@@ -180,7 +180,7 @@ public class MemoryPokerScript : MonoBehaviour {
         Log("Submitted a " + currentHand.ToString().Replace('_', ' '));
         if (currentHand == handCalc.bestHand)
         {
-            if (stage == STAGE_COUNT)
+            if (stage >= STAGE_COUNT)
             {
                 yield return FlipMultiple(cards.Where(x => x.faceUp));
                 moduleSolved = true;
@@ -258,6 +258,7 @@ public class MemoryPokerScript : MonoBehaviour {
     {
         yield return new WaitUntil(() => cards.All(x => !x.animating));
         Module.HandleStrike();
+        stage--;
         uninteractable = true;
         yield return FlipMultiple(cards.Where(x => x.faceUp));
         yield return new WaitUntil(() => cards.All(x => !x.animating));
