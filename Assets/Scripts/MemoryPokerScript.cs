@@ -224,10 +224,11 @@ public class MemoryPokerScript : MonoBehaviour {
     {
         tableCards = Enumerable.Range(0, 16).ToArray().Shuffle().Take(3).ToArray();
         originalPositions = Enumerable.Range(0, 16).ToArray().Shuffle().Take(3).ToArray();
+        Debug.Log("orig: " + originalPositions.Join());
         for (int i = 0; i < 3; i++)
         {
             int pos = tableCards[i];
-            cards[pos].Info = cards[originalPositions[i]].Info;
+            cards[pos].Info = startingGrid[originalPositions[i]];
             cards[pos].UpdateAppearance();
             Log(string.Format("Card {0} flipped over to reveal a {1}.", coordinates[pos], cards[pos].ToString()));
         }

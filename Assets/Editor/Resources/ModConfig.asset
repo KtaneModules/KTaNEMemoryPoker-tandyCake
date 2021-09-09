@@ -18,6 +18,6 @@ MonoBehaviour:
     choose? If it was me, I would choose neither friend nor foe, but the person whose
     sacrifice would make no one angry or sad.\u201D\r\n\nModule by Danny7007\nManual
     by Grunkle Squeaky\nmoduleID: memoryPoker\nManual can be found at ktane.timwi.de"
-  version: 1.0.1
+  version: 1.0.2
   outputFolder: build
   previewImage: {fileID: 2800000, guid: e8bdae6275a7a1148b3b06e8eb786026, type: 3}
